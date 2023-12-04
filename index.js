@@ -4,6 +4,9 @@ const app = express();
 
 app.use(express.json());
 
+const cors = require("cors");
+app.use(cors());
+
 const morgan = require("morgan");
 
 const morganHandler = (tokens, req, res) => {
@@ -116,7 +119,7 @@ app.delete(`${apiRoot}/persons/:id`, deletePerson);
 const addPerson = (request, response) => {
     const person = request.body;
 
-    if (!(person.name && person.phone)) {
+    if (!(person.name && person.number)) {
         response.status(404).send({error: "Name or phone number missing"});
         return;
     }
