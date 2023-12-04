@@ -2,6 +2,8 @@ const express = require('express');
 
 const app = express();
 
+app.use(express.json());
+
 const apiRoot = "/api";
 
 let persons = [
@@ -78,6 +80,24 @@ const deletePerson = (request, response) => {
 }
 
 app.delete(`${apiRoot}/persons/:id`, deletePerson);
+
+const addPerson = (request, response) => {
+    const newPerson = request.body;
+
+    const min = 1000;
+    const max = 1000000 - min;
+
+    const newId = Math.floor(Math.random() * max) + min;
+    console.log("Adding person with new id:", newId);
+
+    newPerson.id = newId;
+
+    persons = persons.concat(newPerson);
+
+    response.status(200).end();
+}
+
+app.post(`${apiRoot}/persons`, addPerson);
 
 const PORT = 3001;
 
