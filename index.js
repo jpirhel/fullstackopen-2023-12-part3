@@ -33,6 +33,22 @@ const getPersons = (request, response) => {
 
 app.get(`${apiRoot}/persons`, getPersons);
 
+const getPerson = ( request, response) => {
+    const id = parseInt(request.params.id, 10);
+
+
+    const person = persons.find(p => p.id === id);
+
+    if (! person) {
+        response.status(404).send({error: "Person not found"});
+        return;
+    }
+
+    response.json(person);
+}
+
+app.get(`${apiRoot}/persons/:id`, getPerson);
+
 const getInfo = (request, response) => {
     const numPersons = persons.length;
 
