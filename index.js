@@ -4,7 +4,7 @@ const app = express();
 
 const apiRoot = "/api";
 
-const persons = [
+let persons = [
     {
         "id": 1,
         "name": "Arto Hellas",
@@ -34,13 +34,12 @@ const getPersons = (request, response) => {
 app.get(`${apiRoot}/persons`, getPersons);
 
 const getPerson = ( request, response) => {
-    const id = parseInt(request.params.id, 10);
-
+    const id = Number(request.params.id);
 
     const person = persons.find(p => p.id === id);
 
     if (! person) {
-        response.status(404).send({error: "Person not found"});
+        response.status(404).end();
         return;
     }
 
@@ -60,6 +59,25 @@ const getInfo = (request, response) => {
 }
 
 app.get(`/info`, getInfo);
+
+const deletePerson = (request, response) => {
+    const id = Number(request.params.id);
+
+    const person = persons.find(p => p.id === id);
+
+    if (! person) {
+        response.status(404).end();
+        return;
+    }
+
+    const newPersons = persons.filter(p => p.id !== id);
+
+    persons = newPersons;
+
+    response.status(200).end();
+}
+
+app.delete(`${apiRoot}/persons/:id`, deletePerson);
 
 const PORT = 3001;
 
