@@ -84,6 +84,20 @@ app.delete(`${apiRoot}/persons/:id`, deletePerson);
 const addPerson = (request, response) => {
     const newPerson = request.body;
 
+    if (! (newPerson.name && newPerson.phone)) {
+        response.status(404).send({error: "Name or phone number missing"});
+        return;
+    }
+
+    const found = persons.filter(p => p.name === newPerson.name) || [];
+
+    const isDuplicateName = found.length > 0;
+
+    if (isDuplicateName) {
+        response.status(404).send({error: "Name must be unique"});
+        return;
+    }
+
     const min = 1000;
     const max = 1000000 - min;
 
