@@ -33,6 +33,18 @@ const getPersons = (request, response) => {
 
 app.get(`${apiRoot}/persons`, getPersons);
 
+const getInfo = (request, response) => {
+    const numPersons = persons.length;
+
+    const now = new Date();
+
+    const res = `Phonebook has info for ${numPersons} people<br /><br />${now}`
+
+    return response.send(res);
+}
+
+app.get(`/info`, getInfo);
+
 const PORT = 3001;
 
 app.listen(PORT, () => {
