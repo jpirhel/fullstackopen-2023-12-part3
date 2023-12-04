@@ -6,7 +6,35 @@ app.use(express.json());
 
 const morgan = require("morgan");
 
-app.use(morgan("tiny"));
+const morganHandler = (tokens, req, res) => {
+    // const tiny = ":method :url :status :res[content-length] - :response-time ms";
+
+    const method = tokens.method(req, res);
+
+    const tinyTokens = [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'),
+        '-',
+        tokens['response-time'](req, res),
+        'ms'
+    ];
+
+    const tinyLogString = tinyTokens.join(" ");
+
+    switch (method) {
+        case "POST":
+            // NOTE could probably fetch this more directly from request
+            //      instead of going through JSON.parse -> JSON.stringify
+            const data = JSON.stringify(req.body);
+            return `${tinyLogString} ${data}`;
+        default:
+            return tinyLogString;
+    }
+}
+
+app.use(morgan(morganHandler));
 
 const apiRoot = "/api";
 
@@ -39,12 +67,12 @@ const getPersons = (request, response) => {
 
 app.get(`${apiRoot}/persons`, getPersons);
 
-const getPerson = ( request, response) => {
+const getPerson = (request, response) => {
     const id = Number(request.params.id);
 
     const person = persons.find(p => p.id === id);
 
-    if (! person) {
+    if (!person) {
         response.status(404).end();
         return;
     }
@@ -71,7 +99,7 @@ const deletePerson = (request, response) => {
 
     const person = persons.find(p => p.id === id);
 
-    if (! person) {
+    if (!person) {
         response.status(404).end();
         return;
     }
@@ -86,14 +114,14 @@ const deletePerson = (request, response) => {
 app.delete(`${apiRoot}/persons/:id`, deletePerson);
 
 const addPerson = (request, response) => {
-    const newPerson = request.body;
+    const person = request.body;
 
-    if (! (newPerson.name && newPerson.phone)) {
+    if (!(person.name && person.phone)) {
         response.status(404).send({error: "Name or phone number missing"});
         return;
     }
 
-    const found = persons.filter(p => p.name === newPerson.name) || [];
+    const found = persons.filter(p => p.name === person.name) || [];
 
     const isDuplicateName = found.length > 0;
 
@@ -106,13 +134,13 @@ const addPerson = (request, response) => {
     const max = 1000000 - min;
 
     const newId = Math.floor(Math.random() * max) + min;
-    console.log("Adding person with new id:", newId);
 
+    const newPerson = {...person};
     newPerson.id = newId;
 
     persons = persons.concat(newPerson);
 
-    response.status(200).end();
+    response.status(200).send(newPerson);
 }
 
 app.post(`${apiRoot}/persons`, addPerson);
