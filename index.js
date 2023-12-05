@@ -96,18 +96,18 @@ app.get(`/info`, getInfo);
 const deletePerson = (request, response) => {
     const id = Number(request.params.id);
 
-/*
-    const person = persons.find(p => p.id === id);
+    /*
+        const person = persons.find(p => p.id === id);
 
-    if (!person) {
-        response.status(404).end();
-        return;
-    }
+        if (!person) {
+            response.status(404).end();
+            return;
+        }
 
-    const newPersons = persons.filter(p => p.id !== id);
+        const newPersons = persons.filter(p => p.id !== id);
 
-    persons = newPersons;
-*/
+        persons = newPersons;
+    */
 
     response.status(200).end();
 }
@@ -115,33 +115,23 @@ const deletePerson = (request, response) => {
 app.delete(`${apiRoot}/persons/:id`, deletePerson);
 
 const addPerson = (request, response) => {
-    const person = request.body;
+    const data = request.body;
 
-    if (!(person.name && person.number)) {
+    if (!(data.name && data.number)) {
         response.status(404).send({error: "Name or phone number missing"});
         return;
     }
 
-    const found = persons.filter(p => p.name === person.name) || [];
+    const person = new Person(data);
 
-    const isDuplicateName = found.length > 0;
-
-    if (isDuplicateName) {
-        response.status(404).send({error: "Name must be unique"});
-        return;
-    }
-
-    const min = 1000;
-    const max = 1000000 - min;
-
-    const newId = Math.floor(Math.random() * max) + min;
-
-    const newPerson = {...person};
-    newPerson.id = newId;
-
-    persons = persons.concat(newPerson);
-
-    response.status(200).send(newPerson);
+    person.save()
+        .then(savedPerson => {
+            response.status(200).send(JSON.stringify(savedPerson));
+        })
+        .catch(error => {
+            console.log("addPerson failed, error.message:", error.message);
+            response.status(500).end();
+        });
 }
 
 app.post(`${apiRoot}/persons`, addPerson);
