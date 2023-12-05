@@ -66,7 +66,7 @@ const getPerson = (request, response) => {
             response.json(person);
         })
         .catch(error => {
-            console.log("getPerson failed, error.message:", error.message);
+            console.log("getPerson failed, error:", error);
             response.status(500).end();
         });
 }
@@ -85,7 +85,7 @@ const getInfo = (request, response) => {
             return response.send(res);
         })
         .catch(error => {
-            console.log("getInfo failed, error.message:", error.message);
+            console.log("getInfo failed, error:", error);
 
             response.status(500).end();
         });
