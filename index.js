@@ -7,6 +7,9 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
+// frontend production build static directory
+app.use(express.static("static"))
+
 const morgan = require("morgan");
 
 const morganHandler = (tokens, req, res) => {
