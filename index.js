@@ -1,3 +1,7 @@
+require("dotenv").config();
+
+const mongoose = require("mongoose");
+
 const express = require('express');
 
 const app = express();
@@ -11,6 +15,8 @@ app.use(cors());
 app.use(express.static("static"))
 
 const morgan = require("morgan");
+
+const Person = require("./models/person");
 
 const morganHandler = (tokens, req, res) => {
     // const tiny = ":method :url :status :res[content-length] - :response-time ms";
@@ -44,58 +50,45 @@ app.use(morgan(morganHandler));
 
 const apiRoot = "/api";
 
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-];
-
 const getPersons = (request, response) => {
-    response.json(persons);
+    Person.find({}).then((result) => {
+        response.json(result);
+    });
 }
 
 app.get(`${apiRoot}/persons`, getPersons);
 
 const getPerson = (request, response) => {
-    const id = Number(request.params.id);
+    const id = request.params.id;
 
-    const person = persons.find(p => p.id === id);
-
-    if (!person) {
-        response.status(404).end();
-        return;
-    }
-
-    response.json(person);
+    Person.findById(id)
+        .then(person => {
+            response.json(person);
+        })
+        .catch(error => {
+            console.log("getPerson failed, error.message:", error.message);
+            response.status(500).end();
+        });
 }
 
 app.get(`${apiRoot}/persons/:id`, getPerson);
 
 const getInfo = (request, response) => {
-    const numPersons = persons.length;
+    Person.find({})
+        .then((result) => {
+            const numPersons = result.length;
 
-    const now = new Date();
+            const now = new Date();
 
-    const res = `Phonebook has info for ${numPersons} people<br /><br />${now}`
+            const res = `Phonebook has info for ${numPersons} people<br /><br />${now}`
 
-    return response.send(res);
+            return response.send(res);
+        })
+        .catch(error => {
+            console.log("getInfo failed, error.message:", error.message);
+
+            response.status(500).end();
+        });
 }
 
 app.get(`/info`, getInfo);
@@ -103,6 +96,7 @@ app.get(`/info`, getInfo);
 const deletePerson = (request, response) => {
     const id = Number(request.params.id);
 
+/*
     const person = persons.find(p => p.id === id);
 
     if (!person) {
@@ -113,6 +107,7 @@ const deletePerson = (request, response) => {
     const newPersons = persons.filter(p => p.id !== id);
 
     persons = newPersons;
+*/
 
     response.status(200).end();
 }
