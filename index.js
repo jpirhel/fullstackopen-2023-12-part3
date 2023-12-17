@@ -98,7 +98,7 @@ const getInfo = (request, response) => {
 app.get(`/info`, getInfo);
 
 const deletePerson = (request, response) => {
-    const id = Number(request.params.id);
+    const id = request.params.id;
 
     Person.findByIdAndDelete(id)
         .then(result => {
