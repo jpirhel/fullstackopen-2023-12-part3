@@ -66,6 +66,7 @@ const getPerson = (request, response) => {
     Person.findById(id)
         .then(person => {
             if (person) {
+                // display information about a single person
                 response.json(person);
             } else {
                 response.status(404).end();
@@ -82,6 +83,8 @@ const getInfo = (request, response, next) => {
             const numPersons = result.length;
 
             const now = new Date();
+
+            // display number of persons in the database
 
             const res = `Phonebook has info for ${numPersons} people<br /><br />${now}`
 
