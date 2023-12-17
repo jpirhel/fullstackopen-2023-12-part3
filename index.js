@@ -125,12 +125,43 @@ const addPerson = (request, response, next) => {
 
 app.post(`${apiRoot}/persons`, addPerson);
 
+const changePerson = (request, response, next) => {
+    const id = request.params.id;
+    const data = request.body;
+
+    if (!(data.name && data.number)) {
+        response.status(404).send({error: "Name of phone number missing"});
+        return;
+    }
+
+    console.log("changePerson, data:", data);
+
+    Person.findById(id)
+        .then(person => {
+            if (person) {
+                person.number = data.number;
+
+                person.save()
+                    .then(savedPerson => {
+                        response.status(200).send(JSON.stringify(savedPerson));
+                    })
+                    .catch(error => next(error));
+            } else {
+                response.status(404).end();
+            }
+        })
+        .catch(error => next(error));
+}
+
+app.put(`${apiRoot}/persons/:id`, changePerson);
+
 const errorHandler = (error, request, response, next) => {
     console.log("errorHandler, error.message:", error.message);
 
     // :id is malformed
     if (error.name === 'CastError') {
-        return response.status(400).send({error: "malformatted id"});
+        response.status(400).send({error: "malformatted id"});
+        return;
     }
 
     next(error);
