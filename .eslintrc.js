@@ -1,3 +1,5 @@
+// eslint config file
+
 module.exports = {
     'env': {
         'commonjs': true,
