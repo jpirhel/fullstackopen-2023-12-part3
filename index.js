@@ -106,7 +106,7 @@ const deletePerson = (request, response) => {
         })
         //.catch(error => next(error));
         .catch(error => {
-            console.log("getInfo failed, error:", error);
+            console.log("deletePerson failed, error:", error);
 
             response.status(500).end();
         });
