@@ -139,7 +139,9 @@ const changePerson = (request, response, next) => {
 
     console.log("changePerson, data:", data);
 
-    Person.findByIdAndUpdate(id, data)
+    const options = {new: true, runValidators: true, context: 'query'};
+
+    Person.findByIdAndUpdate(id, data, options)
         .then(savedPerson => {
             response.json(savedPerson);
         })
