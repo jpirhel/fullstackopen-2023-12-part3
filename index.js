@@ -60,7 +60,7 @@ const getPersons = (request, response, next) => {
 
 app.get(`${apiRoot}/persons`, getPersons);
 
-const getPerson = (request, response) => {
+const getPerson = (request, response, next) => {
     const id = request.params.id;
 
     Person.findById(id)
@@ -123,7 +123,10 @@ const addPerson = (request, response, next) => {
         .then(savedPerson => {
             response.status(200).send(JSON.stringify(savedPerson));
         })
-        .catch(error => next(error));
+        .catch(error => {
+            console.log("addPerson error:", error);
+            response.status(400).send(error);
+        });
 }
 
 app.post(`${apiRoot}/persons`, addPerson);
@@ -139,13 +142,17 @@ const changePerson = (request, response, next) => {
 
     console.log("changePerson, data:", data);
 
-    const options = {new: true, runValidators: true, context: 'query'};
+    const options = {new: true, runValidators: true};
 
     Person.findByIdAndUpdate(id, data, options)
         .then(savedPerson => {
             response.json(savedPerson);
         })
-        .catch(error => next(error));
+        .catch(error => {
+            console.log("changePerson error:", error);
+
+            response.status(400).send(error);
+        });
 }
 
 app.put(`${apiRoot}/persons/:id`, changePerson);
