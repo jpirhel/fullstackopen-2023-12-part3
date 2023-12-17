@@ -50,10 +50,12 @@ app.use(morgan(morganHandler));
 
 const apiRoot = "/api";
 
-const getPersons = (request, response) => {
-    Person.find({}).then((result) => {
-        response.json(result);
-    });
+const getPersons = (request, response, next) => {
+    Person.find({})
+        .then((result) => {
+            response.json(result);
+        })
+        .catch(error => next(error));
 }
 
 app.get(`${apiRoot}/persons`, getPersons);
@@ -74,7 +76,7 @@ const getPerson = (request, response) => {
 
 app.get(`${apiRoot}/persons/:id`, getPerson);
 
-const getInfo = (request, response) => {
+const getInfo = (request, response, next) => {
     Person.find({})
         .then((result) => {
             const numPersons = result.length;
@@ -90,7 +92,7 @@ const getInfo = (request, response) => {
 
 app.get(`/info`, getInfo);
 
-const deletePerson = (request, response) => {
+const deletePerson = (request, response, next) => {
     const id = request.params.id;
 
     Person.findByIdAndDelete(id)
@@ -104,7 +106,7 @@ const deletePerson = (request, response) => {
 
 app.delete(`${apiRoot}/persons/:id`, deletePerson);
 
-const addPerson = (request, response) => {
+const addPerson = (request, response, next) => {
     const data = request.body;
 
     if (!(data.name && data.number)) {
@@ -123,7 +125,7 @@ const addPerson = (request, response) => {
 
 app.post(`${apiRoot}/persons`, addPerson);
 
-const errorHandler = (error, request, response,  next) => {
+const errorHandler = (error, request, response, next) => {
     console.log("errorHandler, error.message:", error.message);
 
     // :id is malformed
