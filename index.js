@@ -1,7 +1,5 @@
 require("dotenv").config();
 
-const mongoose = require("mongoose");
-
 const express = require('express');
 
 const app = express();
@@ -36,13 +34,12 @@ const morganHandler = (tokens, req, res) => {
     const tinyLogString = tinyTokens.join(" ");
 
     switch (method) {
-        case "POST":
-            // NOTE could probably fetch this more directly from request
-            //      instead of going through JSON.parse -> JSON.stringify
-            const data = JSON.stringify(req.body);
-            return `${tinyLogString} ${data}`;
-        default:
-            return tinyLogString;
+    case "POST":
+        // NOTE could probably fetch this more directly from request
+        //      instead of going through JSON.parse -> JSON.stringify
+        return `${tinyLogString} ${JSON.stringify(req.body)}`;
+    default:
+        return tinyLogString;
     }
 }
 
@@ -99,7 +96,7 @@ const deletePerson = (request, response, next) => {
     const id = request.params.id;
 
     Person.findByIdAndDelete(id)
-        .then(result => {
+        .then(() => {
             response.status(204).end();
         })
         .catch(error => next(error));
@@ -109,11 +106,11 @@ const deletePerson = (request, response, next) => {
 
 app.delete(`${apiRoot}/persons/:id`, deletePerson);
 
-const addPerson = (request, response, next) => {
+const addPerson = (request, response, /* next */) => {
     const data = request.body;
 
     if (!(data.name && data.number)) {
-        response.status(404).send({error: "Name or phone number missing"});
+        response.status(404).send({ error: "Name or phone number missing" });
         return;
     }
 
@@ -131,18 +128,18 @@ const addPerson = (request, response, next) => {
 
 app.post(`${apiRoot}/persons`, addPerson);
 
-const changePerson = (request, response, next) => {
+const changePerson = (request, response, /* next */) => {
     const id = request.params.id;
     const data = request.body;
 
     if (!(data.name && data.number)) {
-        response.status(404).send({error: "Name of phone number missing"});
+        response.status(404).send({ error: "Name of phone number missing" });
         return;
     }
 
     console.log("changePerson, data:", data);
 
-    const options = {new: true, runValidators: true};
+    const options = { new: true, runValidators: true };
 
     Person.findByIdAndUpdate(id, data, options)
         .then(savedPerson => {
@@ -162,7 +159,7 @@ const errorHandler = (error, request, response, next) => {
 
     // :id is malformed
     if (error.name === 'CastError') {
-        response.status(400).send({error: "malformatted id"});
+        response.status(400).send({ error: "malformatted id" });
         return;
     }
 
