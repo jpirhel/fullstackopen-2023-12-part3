@@ -139,19 +139,9 @@ const changePerson = (request, response, next) => {
 
     console.log("changePerson, data:", data);
 
-    Person.findById(id)
-        .then(person => {
-            if (person) {
-                person.number = data.number;
-
-                person.save()
-                    .then(savedPerson => {
-                        response.status(200).send(JSON.stringify(savedPerson));
-                    })
-                    .catch(error => next(error));
-            } else {
-                response.status(404).end();
-            }
+    Person.findByIdAndUpdate(id, data)
+        .then(savedPerson => {
+            response.json(savedPerson);
         })
         .catch(error => next(error));
 }
