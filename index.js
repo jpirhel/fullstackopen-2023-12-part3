@@ -63,7 +63,11 @@ const getPerson = (request, response) => {
 
     Person.findById(id)
         .then(person => {
-            response.json(person);
+            if (person) {
+                response.json(person);
+            } else {
+                response.status(404).end();
+            }
         })
         .catch(error => {
             console.log("getPerson failed, error:", error);
@@ -96,18 +100,16 @@ app.get(`/info`, getInfo);
 const deletePerson = (request, response) => {
     const id = Number(request.params.id);
 
-    /*
-        const person = persons.find(p => p.id === id);
+    Person.findByIdAndDelete(id)
+        .then(result => {
+            response.status(204).end();
+        })
+        //.catch(error => next(error));
+        .catch(error => {
+            console.log("getInfo failed, error:", error);
 
-        if (!person) {
-            response.status(404).end();
-            return;
-        }
-
-        const newPersons = persons.filter(p => p.id !== id);
-
-        persons = newPersons;
-    */
+            response.status(500).end();
+        });
 
     response.status(200).end();
 }
