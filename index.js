@@ -69,10 +69,7 @@ const getPerson = (request, response) => {
                 response.status(404).end();
             }
         })
-        .catch(error => {
-            console.log("getPerson failed, error:", error);
-            response.status(500).end();
-        });
+        .catch(error => next(error));
 }
 
 app.get(`${apiRoot}/persons/:id`, getPerson);
@@ -88,11 +85,7 @@ const getInfo = (request, response) => {
 
             return response.send(res);
         })
-        .catch(error => {
-            console.log("getInfo failed, error:", error);
-
-            response.status(500).end();
-        });
+        .catch(error => next(error));
 }
 
 app.get(`/info`, getInfo);
@@ -104,12 +97,7 @@ const deletePerson = (request, response) => {
         .then(result => {
             response.status(204).end();
         })
-        //.catch(error => next(error));
-        .catch(error => {
-            console.log("deletePerson failed, error:", error);
-
-            response.status(500).end();
-        });
+        .catch(error => next(error));
 
     response.status(200).end();
 }
@@ -130,13 +118,23 @@ const addPerson = (request, response) => {
         .then(savedPerson => {
             response.status(200).send(JSON.stringify(savedPerson));
         })
-        .catch(error => {
-            console.log("addPerson failed, error.message:", error.message);
-            response.status(500).end();
-        });
+        .catch(error => next(error));
 }
 
 app.post(`${apiRoot}/persons`, addPerson);
+
+const errorHandler = (error, request, response,  next) => {
+    console.log("errorHandler, error.message:", error.message);
+
+    // :id is malformed
+    if (error.name === 'CastError') {
+        return response.status(400).send({error: "malformatted id"});
+    }
+
+    next(error);
+}
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 
